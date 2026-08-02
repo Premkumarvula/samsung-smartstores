@@ -12,11 +12,9 @@ env:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -37,16 +35,17 @@ jobs:
 
       - name: Tag Docker Image
         run: |
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag \
+            $ECR_REPOSITORY:$IMAGE_TAG \
+            ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Push Docker Image
         run: |
           docker push \
-          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+            ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -54,6 +53,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
+            set -e
 
             aws ecr get-login-password --region ap-southeast-1 | \
             docker login --username AWS --password-stdin \
@@ -74,6 +74,6 @@ jobs:
               -v /opt/samsung-smartstores/instance:/app/instance \
               775615218925.dkr.ecr.ap-southeast-1.amazonaws.com/samsung-smartstore:latest
 
-            sleep 5
+            sleep 10
 
             curl -f http://127.0.0.1:5000/health
