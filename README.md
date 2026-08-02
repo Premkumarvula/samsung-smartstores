@@ -92,3 +92,4 @@ flask --app run create-admin
 `GET /health` returns `{"status": "UP", "database": "UP", ...}` (200) or 503 if
 the database is unreachable — point Dynatrace synthetic monitors / the ALB
 health check here.
+
