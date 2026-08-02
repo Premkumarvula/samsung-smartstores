@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>Login</h2>
+
+        <form method="POST">
+            {{ form.csrf_token }}
+
+            <label for="{{ form.email.id }}">Email</label>
+            {{ form.email(placeholder="Enter your email") }}
+            {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <label for="{{ form.password.id }}">Password</label>
+            {{ form.password(placeholder="Enter your password") }}
+            {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register Here</a></p>
+    </div>
+</div>
+{% endblock %}

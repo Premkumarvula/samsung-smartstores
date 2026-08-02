@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Samsung SmartStore{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h2>Samsung Galaxy S26 Ultra</h2>
+    <p>The future is here.</p>
+</section>
+
+<section class="products">
+    {% for product in products %}
+    <div class="card">
+        <img src="{{ url_for('static', filename='images/' + product.image) }}"
+             alt="{{ product.name }}" class="product-image">
+        <h3>{{ product.name }}</h3>
+        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+        {% if not product.in_stock %}
+            <p class="out-of-stock">Out of stock</p>
+        {% endif %}
+        <a href="{{ url_for('main.product_detail', product_id=product.id) }}">
+            <button>View Product</button>
+        </a>
+    </div>
+    {% else %}
+    <p class="empty-state">No products available right now.</p>
+    {% endfor %}
+</section>
+{% endblock %}

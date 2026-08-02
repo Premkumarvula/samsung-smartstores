@@ -1,0 +1,27 @@
+# /etc/systemd/system/smartstore.service
+#
+# Install:
+#   sudo cp deploy/smartstore.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now smartstore
+
+[Unit]
+Description=Samsung SmartStore (Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/opt/smartstore
+EnvironmentFile=/opt/smartstore/.env
+ExecStart=/opt/smartstore/venv/bin/gunicorn -c gunicorn.conf.py wsgi:app
+Restart=always
+RestartSec=5
+
+# Keep memory bounded on a t3.micro; kill and let systemd restart if a
+# worker leaks badly instead of taking the whole box down.
+MemoryMax=600M
+
+[Install]
+WantedBy=multi-user.target

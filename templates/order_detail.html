@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Order #{{ order.id }}</h2>
+<p class="order-meta">Placed {{ order.created_at.strftime('%b %d, %Y %H:%M') }} &middot; Status: {{ order.status }}</p>
+
+<section class="cart-items">
+    {% for item in order.items %}
+    <div class="cart-row">
+        <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
+             alt="{{ item.product.name }}" class="cart-thumb">
+        <div class="cart-row-info">
+            <h3>{{ item.product.name }}</h3>
+            <p class="price">${{ "%.2f"|format(item.price_at_purchase) }} &times; {{ item.quantity }}</p>
+        </div>
+        <p class="cart-subtotal">${{ "%.2f"|format(item.subtotal) }}</p>
+    </div>
+    {% endfor %}
+</section>
+
+<h2 class="cart-total">Total: ${{ "%.2f"|format(order.total) }}</h2>
+
+<div class="cart-actions">
+    <a href="{{ url_for('orders.order_history') }}"><button class="btn-secondary">Back to Orders</button></a>
+</div>
+{% endblock %}

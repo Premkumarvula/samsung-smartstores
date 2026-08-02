@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Shopping Cart</h2>
+
+{% if items %}
+<section class="cart-items">
+    {% for item in items %}
+    <div class="cart-row">
+        <img src="{{ url_for('static', filename='images/' + item.product.image) }}"
+             alt="{{ item.product.name }}" class="cart-thumb">
+
+        <div class="cart-row-info">
+            <h3>{{ item.product.name }}</h3>
+            <p class="price">${{ "%.2f"|format(item.product.price) }} each</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('cart.update_quantity', product_id=item.product.id) }}" class="qty-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="qty-{{ item.product.id }}">Qty</label>
+            <input type="number" id="qty-{{ item.product.id }}" name="quantity" min="0" value="{{ item.quantity }}">
+            <button type="submit">Update</button>
+        </form>
+
+        <p class="cart-subtotal">${{ "%.2f"|format(item.subtotal) }}</p>
+
+        <form method="POST" action="{{ url_for('cart.remove_from_cart', product_id=item.product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-secondary">Remove</button>
+        </form>
+    </div>
+    {% endfor %}
+</section>
+
+<h2 class="cart-total">Total: ${{ "%.2f"|format(total) }}</h2>
+
+<div class="cart-actions">
+    <form method="POST" action="{{ url_for('cart.checkout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Proceed To Checkout</button>
+    </form>
+    <a href="{{ url_for('main.home') }}"><button class="btn-secondary">Continue Shopping</button></a>
+</div>
+
+{% else %}
+<h2 class="empty-state">Your Cart is Empty</h2>
+<div class="cart-actions">
+    <a href="{{ url_for('main.home') }}"><button>Continue Shopping</button></a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Admin Dashboard</h2>
+
+<section class="admin-stats">
+    <div class="stat-card"><span class="stat-value">{{ stats.product_count }}</span><span>Products</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.order_count }}</span><span>Orders</span></div>
+    <div class="stat-card"><span class="stat-value">{{ stats.user_count }}</span><span>Users</span></div>
+    <div class="stat-card"><span class="stat-value">${{ "%.2f"|format(stats.revenue) }}</span><span>Revenue</span></div>
+</section>
+
+<div class="cart-actions">
+    <a href="{{ url_for('admin.product_list') }}"><button>Manage Products</button></a>
+</div>
+
+<h3 class="page-title">Recent Orders</h3>
+<section class="orders-list">
+    {% for order in recent_orders %}
+    <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="order-row">
+        <span>Order #{{ order.id }}</span>
+        <span>{{ order.user.username }}</span>
+        <span>{{ order.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+        <span class="price">${{ "%.2f"|format(order.total) }}</span>
+    </a>
+    {% else %}
+    <p class="empty-state">No orders yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>{{ title }}</h2>
+
+        <form method="POST">
+            {{ form.csrf_token }}
+
+            <label for="{{ form.name.id }}">Name</label>
+            {{ form.name() }}
+            {% for error in form.name.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <label for="{{ form.price.id }}">Price</label>
+            {{ form.price() }}
+            {% for error in form.price.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <label for="{{ form.description.id }}">Description</label>
+            {{ form.description() }}
+            {% for error in form.description.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <label for="{{ form.image.id }}">Image filename</label>
+            {{ form.image(placeholder="e.g. phone.jpg") }}
+            {% for error in form.image.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <label for="{{ form.stock.id }}">Stock</label>
+            {{ form.stock() }}
+            {% for error in form.stock.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

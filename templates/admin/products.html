@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Products - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<h2 class="page-title">Manage Products</h2>
+
+<div class="cart-actions">
+    <a href="{{ url_for('admin.product_new') }}"><button>+ New Product</button></a>
+</div>
+
+<section class="orders-list">
+    {% for product in products %}
+    <div class="order-row">
+        <span>{{ product.name }}</span>
+        <span>${{ "%.2f"|format(product.price) }}</span>
+        <span>Stock: {{ product.stock }}</span>
+        <span>{{ "Active" if product.is_active else "Inactive" }}</span>
+        <a href="{{ url_for('admin.product_edit', product_id=product.id) }}"><button class="btn-secondary">Edit</button></a>
+        {% if product.is_active %}
+        <form method="POST" action="{{ url_for('admin.product_delete', product_id=product.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-secondary">Deactivate</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</section>
+{% endblock %}

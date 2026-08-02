@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Samsung SmartStore{% endblock %}
+
+{% block content %}
+<h2 class="page-title">My Orders</h2>
+
+{% if orders %}
+<section class="orders-list">
+    {% for order in orders %}
+    <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="order-row">
+        <span>Order #{{ order.id }}</span>
+        <span>{{ order.created_at.strftime('%b %d, %Y %H:%M') }}</span>
+        <span class="order-status">{{ order.status }}</span>
+        <span class="price">${{ "%.2f"|format(order.total) }}</span>
+    </a>
+    {% endfor %}
+</section>
+{% else %}
+<p class="empty-state">You haven't placed any orders yet.</p>
+<div class="cart-actions">
+    <a href="{{ url_for('main.home') }}"><button>Start Shopping</button></a>
+</div>
+{% endif %}
+{% endblock %}
