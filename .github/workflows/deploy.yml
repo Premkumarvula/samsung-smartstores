@@ -6,17 +6,14 @@ on:
       - main
 
 jobs:
-
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v4
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -24,18 +21,24 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
-
             set -e
 
             cd /opt/samsung-smartstores
 
+            # Prevent Git safe directory issues
+            git config --global --add safe.directory /opt/samsung-smartstores
+
+            # Pull latest code
             git pull origin main
 
+            # Stop old container
             docker stop samsung-smartstore || true
             docker rm samsung-smartstore || true
 
+            # Build latest image
             docker build -t samsung-smartstore .
 
+            # Start container
             docker run -d \
               --name samsung-smartstore \
               --restart unless-stopped \
@@ -47,4 +50,5 @@ jobs:
 
             sleep 5
 
+            # Health check
             curl -f http://127.0.0.1:5000/health
