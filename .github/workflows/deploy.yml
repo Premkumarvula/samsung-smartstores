@@ -5,15 +5,48 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: samsung-smartstore
+  IMAGE_TAG: latest
+
 jobs:
   deploy:
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Tag Docker Image
+        run: |
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Docker Image
+        run: |
+          docker push \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1.0.3
 
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -21,24 +54,17 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
 
           script: |
-            set -e
 
-            cd /opt/samsung-smartstores
+            aws ecr get-login-password --region ap-southeast-1 | \
+            docker login --username AWS --password-stdin \
+            775615218925.dkr.ecr.ap-southeast-1.amazonaws.com
 
-            # Prevent Git safe directory issues
-            git config --global --add safe.directory /opt/samsung-smartstores
+            docker pull \
+            775615218925.dkr.ecr.ap-southeast-1.amazonaws.com/samsung-smartstore:latest
 
-            # Pull latest code
-            git pull origin main
-
-            # Stop old container
             docker stop samsung-smartstore || true
             docker rm samsung-smartstore || true
 
-            # Build latest image
-            docker build -t samsung-smartstore .
-
-            # Start container
             docker run -d \
               --name samsung-smartstore \
               --restart unless-stopped \
@@ -46,9 +72,8 @@ jobs:
               -e FLASK_ENV=production \
               -e SECRET_KEY=SamsungSecretKey \
               -v /opt/samsung-smartstores/instance:/app/instance \
-              samsung-smartstore
+              775615218925.dkr.ecr.ap-southeast-1.amazonaws.com/samsung-smartstore:latest
 
             sleep 5
 
-            # Health check
             curl -f http://127.0.0.1:5000/health
