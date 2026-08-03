@@ -1,5 +1,8 @@
 # Samsung SmartStore
 
+Architecture:
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f7720bbc-aafa-48de-a220-e088bc3ba47b" />
+
 A lightweight, production-ready e-commerce demo built with Flask, SQLAlchemy,
 and vanilla HTML/CSS/JS — sized to run comfortably on an AWS EC2 t3.micro
 instance (2 vCPU / 1GB RAM).
